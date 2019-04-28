@@ -16,7 +16,11 @@ namespace Lab8
             return ENVIRONMENT.cities[index];
         }
 
+        public override string ToString()
+        {
+            return string.Format("Index: {0}, X: {1}, Y: {2}", Index, Longitude, Latitude);
+        }
 
-      
+
     }
 }

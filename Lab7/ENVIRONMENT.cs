@@ -21,7 +21,8 @@ namespace Lab8
         /// <summary>
         /// Lista miast z pliku
         /// </summary>
-        public static City[] cities { get; set; }
+        public static City[] cities { get;
+            set; }
         public static Random random { get; set; } = new Random();
     }
 }

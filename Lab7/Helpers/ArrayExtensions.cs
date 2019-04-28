@@ -29,5 +29,15 @@ namespace Lab8.Helpers
 
             return index;
         }
+
+        public static bool Contains(City[] array, City element)
+        {
+            foreach (var item in array)
+            {
+                if (element == item)
+                    return true;
+            }
+            return false;
+        }
     }
 }

@@ -14,11 +14,20 @@ namespace Lab8
                 Console.ReadKey();
                 throw new Exception();
             }
-            Population randomPopulation =new Population()
+            Population currentPopulation = new Population()
             {
                 Individuals = Population.GetRandomPopulation()
             };
 
+            //  Population currentPopulation = new Population();
+
+            //wybierz rodziców
+            Individual mum = currentPopulation.Individuals[ENVIRONMENT.random.Next(currentPopulation.Individuals.Length - 1)];
+            Individual dad = currentPopulation.Individuals[ENVIRONMENT.random.Next(currentPopulation.Individuals.Length - 1)];
+            //skrzyżuj rodziców
+            //sprawdź czy dziecko jest poprawne, jesli nie, wylosuj skrzyżuj jeszcze raz
+            //mutacja
+            //powtarzaj do wypełnienia populacji
 
 
             Console.ReadKey();

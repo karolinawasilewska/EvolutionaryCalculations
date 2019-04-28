@@ -20,7 +20,7 @@ namespace Lab8
         {
             int randomCityIndex = remainingCities.IndexOf(randomCity);
             RemainingCities = remainingCities;
-            for (int i = randomCityIndex; i < remainingCities.Length-1; i++)
+            for (int i = randomCityIndex; i < remainingCities.Length; i++)
             {
                 if (i == remainingCities.Length-1)
                     RemainingCities[i] = null;
@@ -28,13 +28,13 @@ namespace Lab8
                     RemainingCities[i] = remainingCities[i + 1];
             }
 
-            Array.Resize(ref remainingCities, RemainingCities.Length - 1);
+            Array.Resize(ref remainingCities, remainingCities.Length - 1);
             RemainingCities = remainingCities;
         }
 
         public override string ToString()
         {
-            string text = string.Format("Total disctance: {0}; Miasta: ", TotalDistance);
+            string text = string.Format("Total distance: {0}; Miasta: ", TotalDistance);
             foreach (var item in Cities)
             {
                 text = string.Format("{0}, {1}", text, item.Index);

@@ -16,6 +16,7 @@ namespace Lab8
 
             for (int i = 0; i < ENVIRONMENT.PopulationSize; i++)
             {
+                ENVIRONMENT.cities = DataReader.ReadData();
                 population[i] = new Individual();
                 population[i].Order = new int[ENVIRONMENT.IndividualSize];
                 population[i].Cities = new City[ENVIRONMENT.IndividualSize];
