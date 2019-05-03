@@ -14,5 +14,21 @@ namespace Lab8.Helpers
                     Math.Pow(city1.Longitude - city2.Longitude, 2)); ;
             return decimal.Parse(distance.ToString());
         }
+
+        public static decimal CountDistance(City[] cities)
+        {
+            decimal distance = 0;
+
+            for (int i = 1; i < cities.Length; i++)
+            {
+                distance += FindDistance(cities[i - 1], cities[i]);
+            }
+
+            distance += FindDistance(cities[cities.Length-1], cities[0]);
+
+            return distance;
+
+        }
+
     }
 }
