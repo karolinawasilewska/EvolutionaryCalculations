@@ -7,6 +7,20 @@ namespace Lab8
     {
         public City[] Cities { get; set; } = new City[ENVIRONMENT.IndividualSize];
         public int[] Order { get; set; } = new int[ENVIRONMENT.IndividualSize];
+
+        public string OrderAsString
+        {
+            get
+            {
+                string order = "";
+                foreach (var item in Order)
+                {
+                    order += item + ",";
+                }
+                return order;
+            }
+        }
+
         //{
         //    get
         //    {

@@ -17,7 +17,7 @@ namespace Lab8
             //    PopulationSize = int.Parse(args[3]),
             //    GenerationCount = int.Parse(args[4])
             //};
-            OX pmxCrossover = new OX();
+            CX pmxCrossover = new CX();
             //PMX pmxCrossover = new PMX();
             Individual[] childpmx = pmxCrossover.Crossover(new Individual(), new Individual());
 

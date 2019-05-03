@@ -8,29 +8,29 @@ namespace Lab8.Crossovers
         public Individual[] Crossover(Individual parent1, Individual parent2)
         {
 
-            parent1.Cities = new City[] {
-                new City() { Index = 1 },
-                new City() { Index = 2 },
-                new City() { Index = 3 },
-                new City() { Index = 4 },
-                new City() { Index = 5 },
-                new City() { Index = 6 },
-                new City() { Index = 7 },
-                new City() { Index = 8 },
-                new City() { Index = 9 }
-            };
+            //parent1.Cities = new City[] {
+            //    new City() { Index = 1 },
+            //    new City() { Index = 2 },
+            //    new City() { Index = 3 },
+            //    new City() { Index = 4 },
+            //    new City() { Index = 5 },
+            //    new City() { Index = 6 },
+            //    new City() { Index = 7 },
+            //    new City() { Index = 8 },
+            //    new City() { Index = 9 }
+            //};
 
-            parent2.Cities = new City[] {
-                new City() { Index = 4 },
-                new City() { Index = 5 },
-                new City() { Index = 2 },
-                new City() { Index = 1 },
-                new City() { Index = 8 },
-                new City() { Index = 7 },
-                new City() { Index = 6 },
-                new City() { Index = 9 },
-                new City() { Index = 3 }
-            };
+            //parent2.Cities = new City[] {
+            //    new City() { Index = 4 },
+            //    new City() { Index = 5 },
+            //    new City() { Index = 2 },
+            //    new City() { Index = 1 },
+            //    new City() { Index = 8 },
+            //    new City() { Index = 7 },
+            //    new City() { Index = 6 },
+            //    new City() { Index = 9 },
+            //    new City() { Index = 3 }
+            //};
 
             parent1.CreateOrder();
             parent2.CreateOrder();
