@@ -17,9 +17,9 @@ namespace Lab8
             //    PopulationSize = int.Parse(args[3]),
             //    GenerationCount = int.Parse(args[4])
             //};
-
-           // OX oxCrossover = new OX();
-           // Individual child = oxCrossover.Crossover(new Individual(), new Individual());
+            OX pmxCrossover = new OX();
+            //PMX pmxCrossover = new PMX();
+            Individual[] childpmx = pmxCrossover.Crossover(new Individual(), new Individual());
 
             ENVIRONMENT.cities = DataReader.ReadData();
             if (ENVIRONMENT.cities.Length != ENVIRONMENT.IndividualSize)
@@ -47,7 +47,7 @@ namespace Lab8
             //Individual dad = currentPopulation.Individuals[ENVIRONMENT.random.Next(currentPopulation.Individuals.Length - 1)];
 
             //skrzyżuj rodziców
-             Individual child = oxCrossover.Crossover(mum, dad);
+             Individual[] child = oxCrossover.Crossover(mum, dad);
 
             //sprawdź czy dziecko jest poprawne, jesli nie, wylosuj skrzyżuj jeszcze raz
             //mutacja

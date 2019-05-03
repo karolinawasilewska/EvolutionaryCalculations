@@ -4,6 +4,6 @@ namespace Lab8.Crossovers
 {
     interface ICrossover
     {
-        Individual Crossover(Individual parent1, Individual parent2);
+        Individual[] Crossover(Individual parent1, Individual parent2);
     }
 }

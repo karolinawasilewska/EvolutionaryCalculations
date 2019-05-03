@@ -5,11 +5,30 @@ namespace Lab8
 {
     public class Individual
     {
-        public City[] Cities { get; set; }
-        public int[] Order { get; set; }
+        public City[] Cities { get; set; } = new City[ENVIRONMENT.IndividualSize];
+        public int[] Order { get; set; } = new int[ENVIRONMENT.IndividualSize];
+        //{
+        //    get
+        //    {
+        //        for (int i = 0; i < Cities.Length; i++)
+        //        {
+        //            Order[i] = Cities[i].Index;
+        //        }
+        //        return Order;
+        //    }
+        //    set { }
+        //}
         public City[] RemainingCities { get; set; }
 
         public decimal TotalDistance { get; set; } = 0;
+
+        public void CreateOrder()
+        {
+            for (int i = 0; i < Cities.Length; i++)
+            {
+                Order[i] = Cities[i].Index;
+            }
+        }
 
         public City GetRandomCity(int currentlyPossibleSize)
         {
@@ -22,7 +41,7 @@ namespace Lab8
             RemainingCities = remainingCities;
             for (int i = randomCityIndex; i < remainingCities.Length; i++)
             {
-                if (i == remainingCities.Length-1)
+                if (i == remainingCities.Length - 1)
                     RemainingCities[i] = null;
                 else
                     RemainingCities[i] = remainingCities[i + 1];
