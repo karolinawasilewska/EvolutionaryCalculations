@@ -34,7 +34,7 @@ namespace Lab8
         //}
         public City[] RemainingCities { get; set; }
 
-        public decimal TotalDistance { get; set; } = 0;
+        public double TotalDistance { get; set; } = 0;
 
         public void CreateOrder()
         {
@@ -63,6 +63,11 @@ namespace Lab8
 
             Array.Resize(ref remainingCities, remainingCities.Length - 1);
             RemainingCities = remainingCities;
+        }
+
+        public void SetTotalDistance()
+        {
+           TotalDistance= DistanceHelper.CountDistance(Cities);
         }
 
         public override string ToString()

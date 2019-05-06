@@ -119,7 +119,8 @@ namespace Lab8.Crossovers
             }
 
             //child.Order = o1;
-
+            child1.SetTotalDistance();
+            child2.SetTotalDistance();
             return new Individual[] { child1, child2 };
         }
     }

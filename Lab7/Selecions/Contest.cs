@@ -3,7 +3,7 @@ using Lab8.Helpers;
 
 namespace Lab8.Selecions
 {
-    public class Contest : ISelection
+    public class Contest
     {
         public Individual Select(Individual[] individuals, int size)
         {
@@ -15,10 +15,10 @@ namespace Lab8.Selecions
             }
 
             Individual best = individuals[0];
-            decimal minDistance = DistanceHelper.CountDistance(individuals[0].Cities);
+            double minDistance = DistanceHelper.CountDistance(contestans[0].Cities);
             for (int i = 1; i < contestans.Length; i++)
             {
-                decimal currentDistance = DistanceHelper.CountDistance(contestans[0].Cities);
+                double currentDistance = DistanceHelper.CountDistance(contestans[i].Cities);
                 if (minDistance > currentDistance)
                 {
                     minDistance = currentDistance;

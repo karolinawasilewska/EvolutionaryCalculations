@@ -17,9 +17,9 @@ namespace Lab8
             //    PopulationSize = int.Parse(args[3]),
             //    GenerationCount = int.Parse(args[4])
             //};
-            CX pmxCrossover = new CX();
-            //PMX pmxCrossover = new PMX();
-            Individual[] childpmx = pmxCrossover.Crossover(new Individual(), new Individual());
+            //CX pmxCrossover = new CX();
+            ////PMX pmxCrossover = new PMX();
+            //Individual[] childpmx = pmxCrossover.Crossover(new Individual(), new Individual());
 
             ENVIRONMENT.cities = DataReader.ReadData();
             if (ENVIRONMENT.cities.Length != ENVIRONMENT.IndividualSize)
@@ -34,25 +34,51 @@ namespace Lab8
             };
 
             //  Population currentPopulation = new Population();
+            for (int i = 0; i < ENVIRONMENT.PopulationCount; i++)
+            {
+                Population newPopulation = new Population()
+                {
+                    Individuals = new Individual[ENVIRONMENT.IndividualSize]
+                };
 
-            OX oxCrossover = new OX();
-            Contest contest = new Contest();
+                for (int individualIndex = 0; individualIndex < ENVIRONMENT.PopulationSize; individualIndex += 2)
+                {
 
-            //wybierz rodziców
+                    OX oxCrossover = new OX();
+                    Contest contest = new Contest();
+                    Roulette roulette = new Roulette();
 
-            Individual mum = contest.Select(currentPopulation.Individuals, 2);
-            Individual dad = contest.Select(currentPopulation.Individuals, 2);
+                    //wybierz rodziców
 
-            //Individual mum = currentPopulation.Individuals[ENVIRONMENT.random.Next(currentPopulation.Individuals.Length - 1)];
-            //Individual dad = currentPopulation.Individuals[ENVIRONMENT.random.Next(currentPopulation.Individuals.Length - 1)];
+                    double sum = 0.0;
+                    for (int j = 0; j < currentPopulation.Individuals.Length; j++)
+                    {
+                        sum += currentPopulation.Individuals[j].TotalDistance;
+                        //sum += (100000.0 / currentPopulation.Individuals[i].TotalDistance);
+                    }
 
-            //skrzyżuj rodziców
-             Individual[] child = oxCrossover.Crossover(mum, dad);
+                    Individual mum = roulette.Select(currentPopulation.Individuals, sum);
+                    Individual dad = roulette.Select(currentPopulation.Individuals, sum);
 
-            //sprawdź czy dziecko jest poprawne, jesli nie, wylosuj skrzyżuj jeszcze raz
-            //mutacja
-            //powtarzaj do wypełnienia populacji
+                    //  Individual mum = contest.Select(currentPopulation.Individuals, 2);
+                    //  Individual dad = contest.Select(currentPopulation.Individuals, 2);
 
+                    //Individual mum = currentPopulation.Individuals[ENVIRONMENT.random.Next(currentPopulation.Individuals.Length - 1)];
+                    //Individual dad = currentPopulation.Individuals[ENVIRONMENT.random.Next(currentPopulation.Individuals.Length - 1)];
+
+                    //skrzyżuj rodziców
+                    Individual[] child = oxCrossover.Crossover(mum, dad);
+
+                    newPopulation.Individuals[individualIndex] = child[0];
+                    newPopulation.Individuals[individualIndex + 1] = child[1];
+
+                    //sprawdź czy dziecko jest poprawne, jesli nie, wylosuj skrzyżuj jeszcze raz
+                    //mutacja
+                    //powtarzaj do wypełnienia populacji
+
+                    currentPopulation = newPopulation;
+                }
+            }
 
             Console.ReadKey();
         }

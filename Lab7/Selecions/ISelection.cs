@@ -6,6 +6,6 @@ namespace Lab8.Selecions
 {
     public interface ISelection
     {
-        Individual Select(Individual[] individuals, int size);
+        Individual Select(Individual[] individuals, object size);
     }
 }

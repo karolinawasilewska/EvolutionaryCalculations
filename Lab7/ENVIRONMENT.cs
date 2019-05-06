@@ -13,7 +13,7 @@ namespace Lab8
         /// <summary>
         /// Liczba miast w ramach jednego osobnika (musi być zgodna z liczbą danych w pliku)
         /// </summary>
-        public const int IndividualSize = 9;
+        public const int IndividualSize = 100;
         /// <summary>
         /// liczba osobników w populacji
         /// </summary>
