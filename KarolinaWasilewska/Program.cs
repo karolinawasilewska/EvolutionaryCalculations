@@ -1,50 +1,18 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
 /*
- * ruletka 
- * pmx cx 
- * mutacja przez zamianę dwóch miast
- * 
- */
+* ruletka 
+* pmx cx 
+* mutacja przez zamianę dwóch miast
+* ruletka
+* https://pastebin.com/QEAucmnh
+* 
+*/
 namespace KarolinaWasilewska
 {
     public static class ENVIRONMENT
     {
-        public static T[] RemoveAt<T>(this T[] source, int index)
-        {
-            T[] dest = new T[source.Length - 1];
-            if (index > 0)
-                Array.Copy(source, 0, dest, 0, index);
-
-            if (index < source.Length - 1)
-                Array.Copy(source, index + 1, dest, index, source.Length - index - 1);
-
-            return dest;
-        }
-        public static int IndexOf(this City[] source, City element)
-        {
-            int index = 0;
-
-            for (int i = 0; i < source.Length; i++)
-            {
-                if (source[i].Index == element.Index)
-                {
-                    return i;
-                }
-            }
-
-            return index;
-        }
-
-        public static bool Contains(this City[] array, City element)
-        {
-            foreach (var item in array)
-            {
-                if (element == item)
-                    return true;
-            }
-            return false;
-        }
-
         public static bool ContainsInt(this int[] array, int element)
         {
             foreach (var item in array)
@@ -57,107 +25,165 @@ namespace KarolinaWasilewska
         /// <summary>
         /// Liczba populacji (dowolna)
         /// </summary>
-        public const int PopulationCount = 1000;
+        public static int PopulationCount { get; set; }
         /// <summary>
         /// Liczba miast w ramach jednego osobnika (musi być zgodna z liczbą danych w pliku)
         /// </summary>
-        public const int IndividualSize = 100;
+        public static int IndividualSize { get; set; }
         /// <summary>
         /// liczba osobników w populacji
         /// </summary>
-        public const int PopulationSize = 10;
-        /// <summary>
-        /// Lista miast z pliku
-        /// </summary>
-        public static City[] cities
-        {
-            get;
-            set;
-        }
+        public static int PopulationSize { get; set; }
         public static Random random { get; set; } = new Random();
     }
-    public class DataReader
-    {
-        static public City[] ReadData()
-        {
 
-            City[] cities = new City[ENVIRONMENT.IndividualSize];
-
-            //string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"../../../data.txt");
-            //int index = 0;
-            //using (var fileStream = File.OpenRead(path))
-            //using (var streamReader = new StreamReader(fileStream))
-            //{
-            //    String line;
-            //    while ((line = streamReader.ReadLine()) != null)
-            //    {
-            //        string[] lineArray = line.Split(' ');
-            //        cities[index] = new City()
-            //        {
-            //            Index = int.Parse(lineArray[0]),
-            //            Longitude = double.Parse(lineArray[1].Replace('.', ',')),
-            //            Latitude = double.Parse(lineArray[2].Replace('.', ',')),
-            //        };
-            //        index++;
-            //    }
-            //}
-            return cities;
-        }
-    }
-    public class DistanceHelper
+    public class PMX
     {
-        public static double FindDistance(City city1, City city2)
+        public srodowisko.ProblemKlienta prob = null;
+
+        public PMX(srodowisko.ProblemKlienta ProblemKlienta)
         {
-            double distance =
-                Math.Sqrt(
-                    Math.Pow(city1.Latitude - city2.Latitude, 2) +
-                    Math.Pow(city1.Longitude - city2.Longitude, 2)); ;
-            return distance;
+            prob = ProblemKlienta;
         }
 
-        public static double CountDistance(City[] cities)
-        {
-            double distance = 0;
 
-            for (int i = 1; i < cities.Length; i++)
+        public Individual[] Crossover(Individual parent1, Individual parent2)
+        {
+            Individual child1 = new Individual(prob) { Order = new int[parent1.Order.Length] };
+            Individual child2 = new Individual(prob) { Order = new int[parent1.Order.Length] };
+
+            for (int i = 0; i < child1.Order.Length; i++)
             {
-                distance += FindDistance(cities[i - 1], cities[i]);
+                child1.Order[i] = -1;
+                child2.Order[i] = -1;
             }
 
-            distance += FindDistance(cities[cities.Length - 1], cities[0]);
 
-            return distance;
+            if (parent1.Order.Length != parent2.Order.Length)
+                throw new Exception("Invalid parents");
 
+            int cut1, cut2;
+
+            cut1 = ENVIRONMENT.random.Next(0, parent1.Order.Length - 1);
+            cut2 = ENVIRONMENT.random.Next(cut1 + 1, parent1.Order.Length);
+
+
+            for (int i = 0; i < child1.Order.Length; i++)
+            {
+                if (i >= cut1 && i <= cut2)
+                {
+                    child1.Order[i] = parent2.Order[i];
+                    child2.Order[i] = parent1.Order[i];
+                }
+            }
+
+            for (int i = 0; i < child1.Order.Length; i++)
+            {
+                if (i < cut1 || i > cut2)
+                {
+                    if (!child1.Order.ContainsInt(parent1.Order[i]))
+                    {
+                        child1.Order[i] = parent1.Order[i];
+                    }
+                    else
+                    {
+                        int currentVal = Array.IndexOf(parent2.Order, parent1.Order[i]);
+                        while (child1.Order.ContainsInt(parent1.Order[currentVal]))
+                        {
+                            currentVal = Array.IndexOf(parent2.Order, parent1.Order[currentVal]);
+                        }
+                        child1.Order[i] = parent1.Order[currentVal];
+                        //if (!child1.Order.ContainsInt(parent1.Order[i]))
+                         //   child1.Order[i] = child2.Order[Array.IndexOf(child1.Order, parent1.Order[i])];
+                    }
+                    if (!child2.Order.ContainsInt(parent2.Order[i]))
+                    {
+                        child2.Order[i] = parent2.Order[i];
+                    }
+                    else
+                    {
+                        int currentVal = Array.IndexOf(parent1.Order, parent2.Order[i]);
+                        while (child2.Order.ContainsInt(parent2.Order[currentVal]))
+                        {
+                            currentVal = Array.IndexOf(parent1.Order, parent2.Order[currentVal]);
+                        }
+                        child2.Order[i] = parent2.Order[currentVal];
+                    }
+                }
+            }
+
+            return new Individual[] { child1, child2 };
         }
-
     }
-    public class City
+    public class CX
     {
-        public double Longitude { get; set; }
-        public double Latitude { get; set; }
-        public int Index { get; set; }
+        public srodowisko.ProblemKlienta prob = null;
 
-        public static City GetRandomCity(int currentlyPossibleSize)
+        public CX(srodowisko.ProblemKlienta ProblemKlienta)
         {
-            int index = ENVIRONMENT.random.Next(currentlyPossibleSize);
-            return ENVIRONMENT.cities[index];
+            prob = ProblemKlienta;
         }
 
-        public override string ToString()
+        public Individual[] Crossover(Individual parent1, Individual parent2)
         {
-            return string.Format("Index: {0}, X: {1}, Y: {2}", Index, Longitude, Latitude);
+
+            Individual child1 = new Individual(prob);
+            Individual child2 = new Individual(prob);
+
+            for (int i = 0; i < child1.Order.Length; i++)
+            {
+                child1.Order[i] = -1;
+                child2.Order[i] = -1;
+            }
+
+            child1.Order[0] = parent1.Order[0];
+            child2.Order[0] = parent2.Order[0];
+
+            int currentIndex = 0;
+            while (!child1.Order.ContainsInt(parent2.Order[currentIndex]))
+            {
+                int test = parent2.Order[currentIndex];
+                int index = Array.IndexOf(parent1.Order, test);
+                child1.Order[index] = test;
+                currentIndex = index;
+            }
+            currentIndex = 0;
+            while (!child2.Order.ContainsInt(parent1.Order[currentIndex]))
+            {
+                int test = parent1.Order[currentIndex];
+                int index = Array.IndexOf(parent2.Order, test);
+                child2.Order[index] = test;
+                currentIndex = index;
+            }
+
+            for (int i = 0; i < child1.Order.Length; i++)
+            {
+                if (child1.Order[i] == -1)
+                    child1.Order[i] = parent2.Order[i];
+                if (child2.Order[i] == -1)
+                    child2.Order[i] = parent1.Order[i];
+            }
+
+
+            return new Individual[] { child1, child2 };
         }
     }
+
     public class Individual
     {
-        public City[] Cities { get; set; } = new City[ENVIRONMENT.IndividualSize];
+        public srodowisko.ProblemKlienta prob = null;
+
+        public Individual(srodowisko.ProblemKlienta ProblemKlienta)
+        {
+            prob = ProblemKlienta;
+        }
         public int[] Order { get; set; } = new int[ENVIRONMENT.IndividualSize];
 
         public string OrderAsString
         {
             get
             {
-                string order = "";
+                string order = "Order: ";
                 foreach (var item in Order)
                 {
                     order += item + ",";
@@ -165,102 +191,66 @@ namespace KarolinaWasilewska
                 return order;
             }
         }
+        public int PopulationIndex { get; set; }
 
-        //{
-        //    get
-        //    {
-        //        for (int i = 0; i < Cities.Length; i++)
-        //        {
-        //            Order[i] = Cities[i].Index;
-        //        }
-        //        return Order;
-        //    }
-        //    set { }
-        //}
-        public City[] RemainingCities { get; set; }
-
-        public double TotalDistance { get; set; } = 0;
-
-        public void CreateOrder()
+        public static int[] SwapRandomPoints(int[] tab)
         {
-            for (int i = 0; i < Cities.Length; i++)
+            int p1 = ENVIRONMENT.random.Next(tab.Length);
+            int p2 = ENVIRONMENT.random.Next(tab.Length);
+
+            int temp = tab[p1];
+            tab[p1] = tab[p2];
+            tab[p2] = temp;
+
+            return tab;
+        }
+
+        public double TotalDistance
+        {
+            get
             {
-                Order[i] = Cities[i].Index;
+                return prob.Ocena(Order);
             }
-        }
-
-        public City GetRandomCity(int currentlyPossibleSize)
-        {
-            int index = ENVIRONMENT.random.Next(currentlyPossibleSize);
-            return RemainingCities[index];
-        }
-        public void RemoveFromPossible(City[] remainingCities, City randomCity)
-        {
-            int randomCityIndex = remainingCities.IndexOf(randomCity);
-            RemainingCities = remainingCities;
-            for (int i = randomCityIndex; i < remainingCities.Length; i++)
-            {
-                if (i == remainingCities.Length - 1)
-                    RemainingCities[i] = null;
-                else
-                    RemainingCities[i] = remainingCities[i + 1];
-            }
-
-            Array.Resize(ref remainingCities, remainingCities.Length - 1);
-            RemainingCities = remainingCities;
-        }
-
-        public void SetTotalDistance()
-        {
-            TotalDistance = DistanceHelper.CountDistance(Cities);
+            set { }
         }
 
         public override string ToString()
         {
-            string text = string.Format("Total distance: {0}; Miasta: ", TotalDistance);
-            foreach (var item in Cities)
-            {
-                text = string.Format("{0}, {1}", text, item.Index);
-            }
-            return text;
+            return OrderAsString;
         }
 
     }
     public class Population
     {
+        public srodowisko.ProblemKlienta prob = null;
+
+        public Population(srodowisko.ProblemKlienta ProblemKlienta)
+        {
+            prob = ProblemKlienta;
+        }
         public Individual[] Individuals { get; set; }
 
 
-        public static Individual[] GetRandomPopulation()
+        public Individual[] GetRandomPopulation()
         {
             Individual[] population = new Individual[ENVIRONMENT.PopulationSize];
 
-            for (int i = 0; i < ENVIRONMENT.PopulationSize; i++)
+
+            for (int i = 0; i < population.Length; i++)
             {
-                ENVIRONMENT.cities = DataReader.ReadData();
-                population[i] = new Individual();
-                population[i].Order = new int[ENVIRONMENT.IndividualSize];
-                population[i].Cities = new City[ENVIRONMENT.IndividualSize];
-                int currentlyPossibleSize = ENVIRONMENT.IndividualSize;
-                population[i].RemainingCities = ENVIRONMENT.cities;
+                //stwórz osobnika
+                population[i] = new Individual(prob);
+
                 for (int j = 0; j < ENVIRONMENT.IndividualSize; j++)
                 {
-                    City randomCity = population[i].GetRandomCity(currentlyPossibleSize);
-                    //wylosuj jedno miasto
-                    population[i].Cities[j] = randomCity;
-
-                    //zapisz jego Index w Individual.Order
-                    population[i].Order[j] = randomCity.Index;
-                    //dodaj odległość do całkowitego dystansu
-                    population[i].TotalDistance += DistanceHelper.FindDistance(randomCity, j > 0 ? population[i].Cities[j - 1] : randomCity);
-                    //usuń to miasto z możliwych do wylosowania
-                    population[i].RemoveFromPossible(population[i].RemainingCities, randomCity);
-                    //zmniejsz tablicę możliwości
-                    currentlyPossibleSize--;
+                    population[i].Order[j] = j;
                 }
-                population[i].TotalDistance += DistanceHelper.FindDistance(population[i].Cities[0], population[i].Cities[ENVIRONMENT.IndividualSize - 1]);
-                Console.WriteLine(population[i].ToString());
 
+                //posortuj go (tyle swapów ile miast)
+                for (int j = 0; j < ENVIRONMENT.IndividualSize; j++)
+                {
+                    population[i].Order = Individual.SwapRandomPoints(population[i].Order);
+                }
             }
 
             return population;
@@ -269,46 +259,299 @@ namespace KarolinaWasilewska
     }
     public class Criteria
     {
-        public enum SelectionModes
-        {
-            Contest = 1,
-            Roulette = 2,
-            RankedRoulette = 3
-        }
         public enum StopCriterias
         {
             GenerationCount = 1,
             Time = 2
         }
-
-        public SelectionModes? SelectionMode { get; set; }
+        public string Crossover { get; set; }
         public StopCriterias? StopCriteria { get; set; }
-        public int? ContestSize { get; set; }
-        public int? PopulationSize { get; set; }
+        public int PopulationSize { get; set; }
         public int? GenerationCount { get; set; }
         public TimeSpan? Time { get; set; }
         public DateTime FinishTime { get; set; }
-        public double? MinRange { get; set; }
-        public double? MaxRange { get; set; }
+        public short DatasetNumber { get; set; }
+        public double MutationPossibility { get; set; }
+        public short MutationCount { get; set; }
 
         public override string ToString()
         {
-            return string.Format("Selection type: {0} \nStop criteria: {1}\nContest size: {2}\nPopulation size: {3}\n" +
-                "Generation count: {4}\nTime: {5}\nMin range: {6}\nMax range: {7}", SelectionMode.ToString(), StopCriteria.ToString(),
-                ContestSize, PopulationSize, GenerationCount, Time, MinRange, MaxRange);
+            return string.Format("Stop criteria: {1}\nPopulation size: {3}\n" +
+                "Generation count: {4}\nTime: {5}", StopCriteria.ToString(),
+                PopulationSize, GenerationCount, Time);
         }
         class Program
         {
+            protected static srodowisko.ProblemKlienta problemKlienta = new srodowisko.ProblemKlienta();
+
+            public static Individual RouletteSelection(Individual[] individuals, int rouletteSize)
+            {
+                Individual[] candidates = new Individual[rouletteSize];
+                double weightSum = 0, weightCheck = 0, bias = 200;
+                for (int i = 0; i < rouletteSize; i++)
+                {
+                    candidates[i] = individuals[ENVIRONMENT.random.Next(0, individuals.Length - 1)];
+                    weightSum += candidates[i].TotalDistance + bias;
+                }
+
+                Individual chosen = candidates[0];
+                double chosenOne = ENVIRONMENT.random.Next(0, (int)weightSum);
+
+                for (int i = 0; i < rouletteSize; i++)
+                {
+                    weightCheck += candidates[i].TotalDistance + bias;
+
+                    if (weightCheck > chosenOne)
+                    {
+                        chosen = candidates[i];
+                        break;
+                    }
+                }
+                return chosen;
+            }
+
+            //public static Individual RouletteSelection(Individual[] individuals)
+            //{
+            //    // Individual selected = new Individual();
+            //    double sum = 0;
+            //    for (int i = 0; i < individuals.Length; i++)
+            //    {
+            //        sum += (100000.0 / problemKlienta.Ocena(individuals[i].Order));
+            //    }
+            //   // Console.WriteLine("Ruletka suma: {0}", sum);
+            //    double los = ENVIRONMENT.random.NextDouble() * sum;
+            //    Individual ind = individuals[0];
+            //    double currentSum = 0;
+            //    for (int j = 0; j < individuals.Length; j++)
+            //    {
+            //        currentSum += 100000.0 / problemKlienta.Ocena(individuals[j].Order);
+            //        if (currentSum >= los)
+            //        {
+            //            ind = individuals[j];
+            //         //   Console.WriteLine("Roulette wybrano dystans: {0}", ind.TotalDistance);
+            //            break;
+            //        }
+            //    }
+            // //   Console.WriteLine("Roulette wybrano dystans: {0}", ind.TotalDistance);
+            //    return ind;
+            //}
+            public static Individual Select(Individual[] individuals, int size)
+            {
+                Individual[] contestans = new Individual[size];
+
+                for (int i = 0; i < contestans.Length; i++)
+                {
+                    contestans[i] = individuals[ENVIRONMENT.random.Next(individuals.Length - 1)];
+                }
+
+                Individual best = individuals[0];
+                double minDistance = problemKlienta.Ocena(contestans[0].Order);
+                for (int i = 1; i < contestans.Length; i++)
+                {
+                    double currentDistance = problemKlienta.Ocena(contestans[i].Order);
+                    if (minDistance > currentDistance)
+                    {
+                        minDistance = currentDistance;
+                        best = contestans[i];
+                    }
+                }
+                return best;
+            }
             static void Main(string[] args)
             {
                 Criteria criteria = new Criteria()
                 {
                     FinishTime = DateTime.Parse(args[0]),
-                    ContestSize = int.Parse(args[1]),
-                    SelectionMode = (Criteria.SelectionModes)(int.Parse(args[2])),
+                    Crossover = args[1],
+                    StopCriteria = (StopCriterias)int.Parse(args[2]),
                     PopulationSize = int.Parse(args[3]),
-                    GenerationCount = int.Parse(args[4])
+                    GenerationCount = int.Parse(args[4]),
+                    Time = TimeSpan.Parse(args[5]),
+                    MutationPossibility = double.Parse(args[6]),
+                    MutationCount = short.Parse(args[7]),
+                    DatasetNumber = short.Parse(args[8])
                 };
+
+                ENVIRONMENT.IndividualSize = problemKlienta.Rozmiar(criteria.DatasetNumber);
+                ENVIRONMENT.PopulationSize = criteria.PopulationSize;
+                ENVIRONMENT.PopulationCount = criteria.GenerationCount ?? 0;
+
+                Individual bestOne = new Individual(problemKlienta);
+
+                PMX pmx = new PMX(problemKlienta);
+                CX cx = new CX(problemKlienta);
+                Population currentPopulation = new Population(problemKlienta);
+                currentPopulation.Individuals = currentPopulation.GetRandomPopulation();
+                bestOne = currentPopulation.Individuals[0];
+                //---start!---
+                for (int gen = 0; gen < ENVIRONMENT.PopulationCount; gen++)
+                {
+                    Population newPopulation = new Population(problemKlienta)
+                    {
+                        Individuals = new Individual[currentPopulation.Individuals.Length]
+                    };
+                    for (int ind = 0; ind < ENVIRONMENT.PopulationSize; ind += 2)
+                    {
+
+                        //wybierz rodziców ruletką
+                        Individual mum = RouletteSelection(currentPopulation.Individuals, 10);
+                        Individual dad = RouletteSelection(currentPopulation.Individuals, 10);
+                        //  Individual mum = Select(currentPopulation.Individuals, 2);
+                        // Individual dad = Select(currentPopulation.Individuals, 2);
+
+
+
+
+                        if (gen > 50 && gen- bestOne.PopulationIndex >50)
+                        {
+                            mum = bestOne;
+                            criteria.MutationCount = +1000;
+                         //   Console.WriteLine("mix");
+                        }
+
+                        Individual[] children = new Individual[2];
+
+                        //krzyżowanie
+                        switch (criteria.Crossover)
+                        {
+                            case "PMX":
+                                children = pmx.Crossover(mum, dad);
+                                break;
+                            case "CX":
+                                children = cx.Crossover(mum, dad);
+                                break;
+                            default:
+                                break;
+                        }
+
+
+                        //zmutuj
+                        //foreach (var item in children)
+                        for (int i = 0; i < children.Length; i++)
+                        {
+
+                            if (ENVIRONMENT.random.NextDouble() < criteria.MutationPossibility)
+                            {
+                                for (int j = 0; j < criteria.MutationCount; j++)
+                                {
+                                    Individual.SwapRandomPoints(children[i].Order);
+                                }
+                            }
+
+                            newPopulation.Individuals[ind + i] = children[i];
+                            if (bestOne.TotalDistance > children[i].TotalDistance)
+                            {
+                                bestOne = children[i];
+                                bestOne.PopulationIndex = gen;
+                                if (criteria.MutationCount > int.Parse(args[7]))
+                                    criteria.MutationCount -= 999;
+                                Console.WriteLine("{0} dla populacji {1}", (int)bestOne.TotalDistance, gen);
+                            }
+
+
+                        }
+                    }
+                    currentPopulation = newPopulation;
+                }
+                Console.WriteLine("Finish!");
+                Console.ReadKey();
+            }
+        }
+    }
+
+    namespace srodowisko
+    {
+
+        public class City
+        {
+            public double Long { get; set; }
+            public double Lat { get; set; }
+            public int Index { get; set; }
+
+            public static double DistanceToIt(City city1, City city2)
+            {
+                double distance =
+                               Math.Sqrt(
+                                   Math.Pow(city1.Lat - city2.Lat, 2) +
+                                   Math.Pow(city1.Long - city2.Long, 2));
+                return distance;
+            }
+        }
+        public class ProblemKlienta
+        {
+            public ProblemKlienta()
+            {
+                DataReader.ReadData();
+            }
+            public int Rozmiar(int numer_zbioru = 0) { return 10; } // jeśli podany inny niż 0 to zmieniamy na ów zbiór
+
+            public double Ocena(int[] sciezka) // indeksy
+            {
+                double distance = 0.0;
+                City[] cities = new City[sciezka.Length];
+                for (int i = 0; i < sciezka.Length; i++)
+                {
+                    cities[i] = Data.Where(q => q.Index == sciezka[i]).FirstOrDefault();
+                }
+
+                for (int i = 1; i < cities.Length; i++)
+                {
+                    distance += City.DistanceToIt(cities[i - 1], cities[i]);
+                }
+
+                distance += City.DistanceToIt(cities[cities.Length - 1], cities[0]);
+                return distance;
+            }
+            //public int Rozmiar(int numer_zbioru = 0)// jeśli podany inny niż 0 to zmieniamy na ów zbiór
+            //{
+            //    return 10;
+            //}
+            public static City[] Data { get; set; }
+
+            //public double Ocena(int[] sciezka) // indeksy
+            //{
+            //    double distance = 0.0;
+            //    City[] cities = new City[sciezka.Length];
+            //    for (int i = 0; i < sciezka.Length - 1; i++)
+            //    {
+            //        cities[i] = Data.Where(q => q.Index == sciezka[i]).FirstOrDefault();
+            //    }
+
+            //    for (int i = 1; i < cities.Length; i++)
+            //    {
+            //        distance += City.DistanceToIt(cities[i - 1], cities[i]);
+            //    }
+
+            //    distance += City.DistanceToIt(cities[cities.Length - 1], cities[0]);
+            //    return distance;
+            //}
+            public class DataReader
+            {
+                static public void ReadData()
+                {
+
+                    City[] cities = new City[10];
+
+                    string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"../../data.txt");
+                    int index = 0;
+                    using (var fileStream = File.OpenRead(path))
+                    using (var streamReader = new StreamReader(fileStream))
+                    {
+                        String line;
+                        while ((line = streamReader.ReadLine()) != null)
+                        {
+                            string[] lineArray = line.Split(' ');
+                            cities[index] = new City()
+                            {
+                                Index = int.Parse(lineArray[0]),
+                                Long = double.Parse(lineArray[1].Replace('.', ',')),
+                                Lat = double.Parse(lineArray[2].Replace('.', ',')),
+                            };
+                            index++;
+                        }
+                    }
+                    Data = cities;
+                }
             }
         }
     }

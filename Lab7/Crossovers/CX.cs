@@ -5,9 +5,9 @@ using System.Text;
 
 namespace Lab8.Crossovers
 {
-    public class CX : ICrossover
+    public class CX 
     {
-        public Individual[] Crossover(Individual parent1, Individual parent2)
+        public static Individual[] Crossover(Individual parent1, Individual parent2)
         {
             //parent1.Cities = new City[] {
             //    new City() { Index = 1 },
