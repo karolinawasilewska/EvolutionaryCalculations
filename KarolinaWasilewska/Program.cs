@@ -45,75 +45,134 @@ namespace KarolinaWasilewska
         {
             prob = ProblemKlienta;
         }
-
-
-        public Individual[] Crossover(Individual parent1, Individual parent2)
+        public Individual[] Crossover(int[] p1, int[] p2)
         {
-            Individual child1 = new Individual(prob) { Order = new int[parent1.Order.Length] };
-            Individual child2 = new Individual(prob) { Order = new int[parent1.Order.Length] };
-
-            for (int i = 0; i < child1.Order.Length; i++)
+            int beginSplit = ENVIRONMENT.random.Next(0, p1.Length - 2);
+            int endSplit = ENVIRONMENT.random.Next(beginSplit + 1, p1.Length);
+            int parentSize = p1.Length;
+            int swathSize = endSplit - beginSplit;
+            int[] ch1 = new int[parentSize],
+                  ch2 = new int[parentSize],
+                  p1Swath = new int[swathSize],
+                  p2Swath = new int[swathSize];
+            int j = 0;
+            for (int i = 0; i < parentSize; i++)
             {
-                child1.Order[i] = -1;
-                child2.Order[i] = -1;
-            }
-
-
-            if (parent1.Order.Length != parent2.Order.Length)
-                throw new Exception("Invalid parents");
-
-            int cut1, cut2;
-
-            cut1 = ENVIRONMENT.random.Next(0, parent1.Order.Length - 1);
-            cut2 = ENVIRONMENT.random.Next(cut1 + 1, parent1.Order.Length);
-
-
-            for (int i = 0; i < child1.Order.Length; i++)
-            {
-                if (i >= cut1 && i <= cut2)
+                if (i >= beginSplit && i < endSplit)
                 {
-                    child1.Order[i] = parent2.Order[i];
-                    child2.Order[i] = parent1.Order[i];
+                    p1Swath[j] = p1[i];
+                    p2Swath[j] = p2[i];
+                    j++;
                 }
+                ch1[i] = p1[i];
+                ch2[i] = p2[i];
             }
 
-            for (int i = 0; i < child1.Order.Length; i++)
+            for (int i = 0; i < parentSize; i++)
             {
-                if (i < cut1 || i > cut2)
+                if (i < beginSplit || i >= endSplit)
                 {
-                    if (!child1.Order.ContainsInt(parent1.Order[i]))
-                    {
-                        child1.Order[i] = parent1.Order[i];
-                    }
+                    //ch1
+                    if (!Array.Exists(p1Swath, x => x == p2[i]))
+                        ch1[i] = p2[i];
                     else
                     {
-                        int currentVal = Array.IndexOf(parent2.Order, parent1.Order[i]);
-                        while (child1.Order.ContainsInt(parent1.Order[currentVal]))
+                        int toCheck = p2[Array.IndexOf(p1, p2[i])];
+                        while (Array.Exists(p1Swath, x => x == toCheck))
                         {
-                            currentVal = Array.IndexOf(parent2.Order, parent1.Order[currentVal]);
+                            toCheck = p2[Array.IndexOf(p1, toCheck)];
                         }
-                        child1.Order[i] = parent1.Order[currentVal];
-                        //if (!child1.Order.ContainsInt(parent1.Order[i]))
-                         //   child1.Order[i] = child2.Order[Array.IndexOf(child1.Order, parent1.Order[i])];
+                        ch1[i] = toCheck;
                     }
-                    if (!child2.Order.ContainsInt(parent2.Order[i]))
-                    {
-                        child2.Order[i] = parent2.Order[i];
-                    }
+
+                    //ch2
+                    if (!Array.Exists(p2Swath, x => x == p1[i]))
+                        ch2[i] = p1[i];
                     else
                     {
-                        int currentVal = Array.IndexOf(parent1.Order, parent2.Order[i]);
-                        while (child2.Order.ContainsInt(parent2.Order[currentVal]))
+                        int toCheck = p1[Array.IndexOf(p2, p1[i])];
+                        while (Array.Exists(p2Swath, x => x == toCheck))
                         {
-                            currentVal = Array.IndexOf(parent1.Order, parent2.Order[currentVal]);
+                            toCheck = p1[Array.IndexOf(p2, toCheck)];
                         }
-                        child2.Order[i] = parent2.Order[currentVal];
+                        ch2[i] = toCheck;
                     }
                 }
             }
 
-            return new Individual[] { child1, child2 };
+            Individual child1 = new Individual(prob) { Order = ch1 };
+            Individual child2 = new Individual(prob) { Order = ch2 };
+            Individual[] newChildren = new Individual[] { child1, child2 };
+            return newChildren;
         }
+
+        //public Individual[] Crossover(Individual parent1, Individual parent2)
+        //{
+        //    Individual child1 = new Individual(prob) { Order = new int[parent1.Order.Length] };
+        //    Individual child2 = new Individual(prob) { Order = new int[parent1.Order.Length] };
+
+        //    for (int i = 0; i < child1.Order.Length; i++)
+        //    {
+        //        child1.Order[i] = -1;
+        //        child2.Order[i] = -1;
+        //    }
+
+
+        //    if (parent1.Order.Length != parent2.Order.Length)
+        //        throw new Exception("Invalid parents");
+
+        //    int cut1, cut2;
+
+        //    cut1 = ENVIRONMENT.random.Next(0, parent1.Order.Length - 1);
+        //    cut2 = ENVIRONMENT.random.Next(cut1 + 1, parent1.Order.Length);
+
+
+        //    for (int i = 0; i < child1.Order.Length; i++)
+        //    {
+        //        if (i >= cut1 && i <= cut2)
+        //        {
+        //            child1.Order[i] = parent2.Order[i];
+        //            child2.Order[i] = parent1.Order[i];
+        //        }
+        //    }
+
+        //    for (int i = 0; i < child1.Order.Length; i++)
+        //    {
+        //        if (i < cut1 || i > cut2)
+        //        {
+        //            if (!child1.Order.ContainsInt(parent1.Order[i]))
+        //            {
+        //                child1.Order[i] = parent1.Order[i];
+        //            }
+        //            else
+        //            {
+        //                int currentVal = Array.IndexOf(parent2.Order, parent1.Order[i]);
+        //                while (child1.Order.ContainsInt(parent1.Order[currentVal]))
+        //                {
+        //                    currentVal = Array.IndexOf(parent2.Order, parent1.Order[currentVal]);
+        //                }
+        //                child1.Order[i] = parent1.Order[currentVal];
+        //                //if (!child1.Order.ContainsInt(parent1.Order[i]))
+        //                 //   child1.Order[i] = child2.Order[Array.IndexOf(child1.Order, parent1.Order[i])];
+        //            }
+        //            if (!child2.Order.ContainsInt(parent2.Order[i]))
+        //            {
+        //                child2.Order[i] = parent2.Order[i];
+        //            }
+        //            else
+        //            {
+        //                int currentVal = Array.IndexOf(parent1.Order, parent2.Order[i]);
+        //                while (child2.Order.ContainsInt(parent2.Order[currentVal]))
+        //                {
+        //                    currentVal = Array.IndexOf(parent1.Order, parent2.Order[currentVal]);
+        //                }
+        //                child2.Order[i] = parent2.Order[currentVal];
+        //            }
+        //        }
+        //    }
+
+        //    return new Individual[] { child1, child2 };
+        //}
     }
     public class CX
     {
@@ -205,18 +264,17 @@ namespace KarolinaWasilewska
             return tab;
         }
 
-        public double TotalDistance
-        {
-            get
-            {
-                return prob.Ocena(Order);
-            }
-            set { }
-        }
+        public double TotalDistance { get; set; }
+      
 
         public override string ToString()
         {
             return OrderAsString;
+        }
+
+        public void RecalculateTotalDistance()
+        {
+            TotalDistance = prob.Ocena(Order);
         }
 
     }
@@ -251,6 +309,7 @@ namespace KarolinaWasilewska
                 {
                     population[i].Order = Individual.SwapRandomPoints(population[i].Order);
                 }
+                population[i].RecalculateTotalDistance();
             }
 
             return population;
@@ -283,57 +342,59 @@ namespace KarolinaWasilewska
         class Program
         {
             protected static srodowisko.ProblemKlienta problemKlienta = new srodowisko.ProblemKlienta();
-
-            public static Individual RouletteSelection(Individual[] individuals)
+            public static Individual RouletteSelection(Individual[] population)
             {
-              
-                double weightSum = 0, weightCheck = 0;
-                for (int i = 0; i < individuals.Length; i++)
+                double sum = 0,
+                      minValue = 0,
+                      randomValue = 0;
+                for (int i = 0; i < population.Length; i++)
                 {
-                    weightSum += individuals[i].TotalDistance;
-                }
-
-                Individual chosen = individuals[0];
-                double chosenOne = ENVIRONMENT.random.Next(0, (int)weightSum);
-
-                for (int i = 0; i < individuals.Length; i++)
-                {
-                    weightCheck += individuals[i].TotalDistance;
-
-                    if (weightCheck > chosenOne)
+                    sum += population[i].TotalDistance;
+                    if (minValue > population[i].TotalDistance)
                     {
-                        chosen = individuals[i];
-                        break;
+                        minValue = population[i].TotalDistance;
                     }
                 }
-                return chosen;
-            }
 
+                sum += -minValue * population.Length;
+                randomValue = sum * ENVIRONMENT.random.NextDouble() + minValue * population.Length;
+                sum = 0;
+                for (int i = 0; i < population.Length; i++)
+                {
+                    sum += population[i].TotalDistance;
+                    if (minValue > population[i].TotalDistance)
+                    {
+                        minValue = population[i].TotalDistance;
+                    }
+                }
+
+                return population[(int)(ENVIRONMENT.random.NextDouble() * population.Length)];
+            }
             //public static Individual RouletteSelection(Individual[] individuals)
             //{
-            //    // Individual selected = new Individual();
-            //    double sum = 0;
+
+            //    double weightSum = 0, weightCheck = 0;
             //    for (int i = 0; i < individuals.Length; i++)
             //    {
-            //        sum += (100000.0 / problemKlienta.Ocena(individuals[i].Order));
+            //        weightSum += individuals[i].TotalDistance;
             //    }
-            //   // Console.WriteLine("Ruletka suma: {0}", sum);
-            //    double los = ENVIRONMENT.random.NextDouble() * sum;
-            //    Individual ind = individuals[0];
-            //    double currentSum = 0;
-            //    for (int j = 0; j < individuals.Length; j++)
+
+            //    Individual chosen = individuals[0];
+            //    double chosenOne = ENVIRONMENT.random.Next(0, (int)weightSum);
+
+            //    for (int i = 0; i < individuals.Length; i++)
             //    {
-            //        currentSum += 100000.0 / problemKlienta.Ocena(individuals[j].Order);
-            //        if (currentSum >= los)
+            //        weightCheck += individuals[i].TotalDistance;
+
+            //        if (weightCheck > chosenOne)
             //        {
-            //            ind = individuals[j];
-            //         //   Console.WriteLine("Roulette wybrano dystans: {0}", ind.TotalDistance);
+            //            chosen = individuals[i];
             //            break;
             //        }
             //    }
-            // //   Console.WriteLine("Roulette wybrano dystans: {0}", ind.TotalDistance);
-            //    return ind;
+            //    return chosen;
             //}
+
             public static Individual Select(Individual[] individuals, int size)
             {
                 Individual[] contestans = new Individual[size];
@@ -376,6 +437,7 @@ namespace KarolinaWasilewska
                 ENVIRONMENT.PopulationCount = criteria.GenerationCount ?? 0;
 
                 Individual bestOne = new Individual(problemKlienta);
+                bestOne.RecalculateTotalDistance();
 
                 PMX pmx = new PMX(problemKlienta);
                 CX cx = new CX(problemKlienta);
@@ -383,8 +445,12 @@ namespace KarolinaWasilewska
                 currentPopulation.Individuals = currentPopulation.GetRandomPopulation();
                 bestOne = currentPopulation.Individuals[0];
                 //---start!---
+
+                DateTime startTime = DateTime.Now;
+
                 for (int gen = 0; gen < ENVIRONMENT.PopulationCount; gen++)
                 {
+
                     Population newPopulation = new Population(problemKlienta)
                     {
                         Individuals = new Individual[currentPopulation.Individuals.Length]
@@ -393,19 +459,19 @@ namespace KarolinaWasilewska
                     {
 
                         //wybierz rodziców ruletką
-                     //   Individual mum = RouletteSelection(currentPopulation.Individuals);
-                     //   Individual dad = RouletteSelection(currentPopulation.Individuals);
-                         Individual mum = Select(currentPopulation.Individuals, 2);
-                        Individual dad = Select(currentPopulation.Individuals, 2);
+                        Individual mum = RouletteSelection(currentPopulation.Individuals);
+                        Individual dad = RouletteSelection(currentPopulation.Individuals);
+                        //    Individual mum = Select(currentPopulation.Individuals, 2);
+                        // Individual dad = Select(currentPopulation.Individuals, 2);
 
 
 
 
-                        if (gen > 50 && gen- bestOne.PopulationIndex >50)
+                        if (gen > 50 && gen - bestOne.PopulationIndex > 50)
                         {
                             mum = bestOne;
                             criteria.MutationCount = +1000;
-                         //   Console.WriteLine("mix");
+                            //   Console.WriteLine("mix");
                         }
 
                         Individual[] children = new Individual[2];
@@ -414,7 +480,7 @@ namespace KarolinaWasilewska
                         switch (criteria.Crossover)
                         {
                             case "PMX":
-                                children = pmx.Crossover(mum, dad);
+                                children = pmx.Crossover(mum.Order, dad.Order);
                                 break;
                             case "CX":
                                 children = cx.Crossover(mum, dad);
@@ -436,7 +502,7 @@ namespace KarolinaWasilewska
                                     Individual.SwapRandomPoints(children[i].Order);
                                 }
                             }
-
+                            children[i].RecalculateTotalDistance();
                             newPopulation.Individuals[ind + i] = children[i];
                             if (bestOne.TotalDistance > children[i].TotalDistance)
                             {
@@ -490,7 +556,7 @@ namespace KarolinaWasilewska
                 City[] cities = new City[sciezka.Length];
                 for (int i = 0; i < sciezka.Length; i++)
                 {
-                    cities[i] = Data.Where(q => q.Index-1 == sciezka[i]).FirstOrDefault();
+                    cities[i] = Data.Where(q => q.Index - 1 == sciezka[i]).FirstOrDefault();
                 }
 
                 for (int i = 1; i < cities.Length; i++)
