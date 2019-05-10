@@ -284,26 +284,25 @@ namespace KarolinaWasilewska
         {
             protected static srodowisko.ProblemKlienta problemKlienta = new srodowisko.ProblemKlienta();
 
-            public static Individual RouletteSelection(Individual[] individuals, int rouletteSize)
+            public static Individual RouletteSelection(Individual[] individuals)
             {
-                Individual[] candidates = new Individual[rouletteSize];
-                double weightSum = 0, weightCheck = 0, bias = 200;
-                for (int i = 0; i < rouletteSize; i++)
+              
+                double weightSum = 0, weightCheck = 0;
+                for (int i = 0; i < individuals.Length; i++)
                 {
-                    candidates[i] = individuals[ENVIRONMENT.random.Next(0, individuals.Length - 1)];
-                    weightSum += candidates[i].TotalDistance + bias;
+                    weightSum += individuals[i].TotalDistance;
                 }
 
-                Individual chosen = candidates[0];
+                Individual chosen = individuals[0];
                 double chosenOne = ENVIRONMENT.random.Next(0, (int)weightSum);
 
-                for (int i = 0; i < rouletteSize; i++)
+                for (int i = 0; i < individuals.Length; i++)
                 {
-                    weightCheck += candidates[i].TotalDistance + bias;
+                    weightCheck += individuals[i].TotalDistance;
 
                     if (weightCheck > chosenOne)
                     {
-                        chosen = candidates[i];
+                        chosen = individuals[i];
                         break;
                     }
                 }
@@ -394,10 +393,10 @@ namespace KarolinaWasilewska
                     {
 
                         //wybierz rodziców ruletką
-                        Individual mum = RouletteSelection(currentPopulation.Individuals, 10);
-                        Individual dad = RouletteSelection(currentPopulation.Individuals, 10);
-                        //  Individual mum = Select(currentPopulation.Individuals, 2);
-                        // Individual dad = Select(currentPopulation.Individuals, 2);
+                     //   Individual mum = RouletteSelection(currentPopulation.Individuals);
+                     //   Individual dad = RouletteSelection(currentPopulation.Individuals);
+                         Individual mum = Select(currentPopulation.Individuals, 2);
+                        Individual dad = Select(currentPopulation.Individuals, 2);
 
 
 
@@ -483,7 +482,7 @@ namespace KarolinaWasilewska
             {
                 DataReader.ReadData();
             }
-            public int Rozmiar(int numer_zbioru = 0) { return 10; } // jeśli podany inny niż 0 to zmieniamy na ów zbiór
+            public int Rozmiar(int numer_zbioru = 0) { return 980; } // jeśli podany inny niż 0 to zmieniamy na ów zbiór
 
             public double Ocena(int[] sciezka) // indeksy
             {
@@ -491,7 +490,7 @@ namespace KarolinaWasilewska
                 City[] cities = new City[sciezka.Length];
                 for (int i = 0; i < sciezka.Length; i++)
                 {
-                    cities[i] = Data.Where(q => q.Index == sciezka[i]).FirstOrDefault();
+                    cities[i] = Data.Where(q => q.Index-1 == sciezka[i]).FirstOrDefault();
                 }
 
                 for (int i = 1; i < cities.Length; i++)
@@ -530,7 +529,7 @@ namespace KarolinaWasilewska
                 static public void ReadData()
                 {
 
-                    City[] cities = new City[10];
+                    City[] cities = new City[980];
 
                     string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"../../data.txt");
                     int index = 0;
