@@ -45,134 +45,132 @@ namespace KarolinaWasilewska
         {
             prob = ProblemKlienta;
         }
-        public Individual[] Crossover(int[] p1, int[] p2)
-        {
-            int beginSplit = ENVIRONMENT.random.Next(0, p1.Length - 2);
-            int endSplit = ENVIRONMENT.random.Next(beginSplit + 1, p1.Length);
-            int parentSize = p1.Length;
-            int swathSize = endSplit - beginSplit;
-            int[] ch1 = new int[parentSize],
-                  ch2 = new int[parentSize],
-                  p1Swath = new int[swathSize],
-                  p2Swath = new int[swathSize];
-            int j = 0;
-            for (int i = 0; i < parentSize; i++)
-            {
-                if (i >= beginSplit && i < endSplit)
-                {
-                    p1Swath[j] = p1[i];
-                    p2Swath[j] = p2[i];
-                    j++;
-                }
-                ch1[i] = p1[i];
-                ch2[i] = p2[i];
-            }
-
-            for (int i = 0; i < parentSize; i++)
-            {
-                if (i < beginSplit || i >= endSplit)
-                {
-                    //ch1
-                    if (!Array.Exists(p1Swath, x => x == p2[i]))
-                        ch1[i] = p2[i];
-                    else
-                    {
-                        int toCheck = p2[Array.IndexOf(p1, p2[i])];
-                        while (Array.Exists(p1Swath, x => x == toCheck))
-                        {
-                            toCheck = p2[Array.IndexOf(p1, toCheck)];
-                        }
-                        ch1[i] = toCheck;
-                    }
-
-                    //ch2
-                    if (!Array.Exists(p2Swath, x => x == p1[i]))
-                        ch2[i] = p1[i];
-                    else
-                    {
-                        int toCheck = p1[Array.IndexOf(p2, p1[i])];
-                        while (Array.Exists(p2Swath, x => x == toCheck))
-                        {
-                            toCheck = p1[Array.IndexOf(p2, toCheck)];
-                        }
-                        ch2[i] = toCheck;
-                    }
-                }
-            }
-
-            Individual child1 = new Individual(prob) { Order = ch1 };
-            Individual child2 = new Individual(prob) { Order = ch2 };
-            Individual[] newChildren = new Individual[] { child1, child2 };
-            return newChildren;
-        }
-
-        //public Individual[] Crossover(Individual parent1, Individual parent2)
+        //public Individual[] Crossover(int[] p1, int[] p2)
         //{
-        //    Individual child1 = new Individual(prob) { Order = new int[parent1.Order.Length] };
-        //    Individual child2 = new Individual(prob) { Order = new int[parent1.Order.Length] };
-
-        //    for (int i = 0; i < child1.Order.Length; i++)
+        //    int beginSplit = ENVIRONMENT.random.Next(0, p1.Length - 2);
+        //    int endSplit = ENVIRONMENT.random.Next(beginSplit + 1, p1.Length);
+        //    int parentSize = p1.Length;
+        //    int swathSize = endSplit - beginSplit;
+        //    int[] ch1 = new int[parentSize],
+        //          ch2 = new int[parentSize],
+        //          p1Swath = new int[swathSize],
+        //          p2Swath = new int[swathSize];
+        //    int j = 0;
+        //    for (int i = 0; i < parentSize; i++)
         //    {
-        //        child1.Order[i] = -1;
-        //        child2.Order[i] = -1;
-        //    }
-
-
-        //    if (parent1.Order.Length != parent2.Order.Length)
-        //        throw new Exception("Invalid parents");
-
-        //    int cut1, cut2;
-
-        //    cut1 = ENVIRONMENT.random.Next(0, parent1.Order.Length - 1);
-        //    cut2 = ENVIRONMENT.random.Next(cut1 + 1, parent1.Order.Length);
-
-
-        //    for (int i = 0; i < child1.Order.Length; i++)
-        //    {
-        //        if (i >= cut1 && i <= cut2)
+        //        if (i >= beginSplit && i < endSplit)
         //        {
-        //            child1.Order[i] = parent2.Order[i];
-        //            child2.Order[i] = parent1.Order[i];
+        //            p1Swath[j] = p1[i];
+        //            p2Swath[j] = p2[i];
+        //            j++;
         //        }
+        //        ch1[i] = p1[i];
+        //        ch2[i] = p2[i];
         //    }
 
-        //    for (int i = 0; i < child1.Order.Length; i++)
+        //    for (int i = 0; i < parentSize; i++)
         //    {
-        //        if (i < cut1 || i > cut2)
+        //        if (i < beginSplit || i >= endSplit)
         //        {
-        //            if (!child1.Order.ContainsInt(parent1.Order[i]))
-        //            {
-        //                child1.Order[i] = parent1.Order[i];
-        //            }
+        //            //ch1
+        //            if (!Array.Exists(p1Swath, x => x == p2[i]))
+        //                ch1[i] = p2[i];
         //            else
         //            {
-        //                int currentVal = Array.IndexOf(parent2.Order, parent1.Order[i]);
-        //                while (child1.Order.ContainsInt(parent1.Order[currentVal]))
+        //                int toCheck = p2[Array.IndexOf(p1, p2[i])];
+        //                while (Array.Exists(p1Swath, x => x == toCheck))
         //                {
-        //                    currentVal = Array.IndexOf(parent2.Order, parent1.Order[currentVal]);
+        //                    toCheck = p2[Array.IndexOf(p1, toCheck)];
         //                }
-        //                child1.Order[i] = parent1.Order[currentVal];
-        //                //if (!child1.Order.ContainsInt(parent1.Order[i]))
-        //                 //   child1.Order[i] = child2.Order[Array.IndexOf(child1.Order, parent1.Order[i])];
+        //                ch1[i] = toCheck;
         //            }
-        //            if (!child2.Order.ContainsInt(parent2.Order[i]))
-        //            {
-        //                child2.Order[i] = parent2.Order[i];
-        //            }
+
+        //            //ch2
+        //            if (!Array.Exists(p2Swath, x => x == p1[i]))
+        //                ch2[i] = p1[i];
         //            else
         //            {
-        //                int currentVal = Array.IndexOf(parent1.Order, parent2.Order[i]);
-        //                while (child2.Order.ContainsInt(parent2.Order[currentVal]))
+        //                int toCheck = p1[Array.IndexOf(p2, p1[i])];
+        //                while (Array.Exists(p2Swath, x => x == toCheck))
         //                {
-        //                    currentVal = Array.IndexOf(parent1.Order, parent2.Order[currentVal]);
+        //                    toCheck = p1[Array.IndexOf(p2, toCheck)];
         //                }
-        //                child2.Order[i] = parent2.Order[currentVal];
+        //                ch2[i] = toCheck;
         //            }
         //        }
         //    }
 
-        //    return new Individual[] { child1, child2 };
+        //    Individual child1 = new Individual(prob) { Order = ch1 };
+        //    Individual child2 = new Individual(prob) { Order = ch2 };
+        //    Individual[] newChildren = new Individual[] { child1, child2 };
+        //    return newChildren;
         //}
+
+        public Individual[] Crossover(int[] parent1, int[] parent2)
+        {
+            Individual child1 = new Individual(prob) { Order = new int[parent1.Length] };
+            Individual child2 = new Individual(prob) { Order = new int[parent1.Length] };
+
+            for (int i = 0; i < child1.Order.Length; i++)
+            {
+                child1.Order[i] = -1;
+                child2.Order[i] = -1;
+            }
+
+
+            if (parent1.Length != parent2.Length)
+                throw new Exception("Invalid parents");
+
+            int cut1, cut2;
+
+            cut1 = ENVIRONMENT.random.Next(0, parent1.Length - 1);
+            cut2 = ENVIRONMENT.random.Next(cut1 + 1, parent1.Length);
+
+
+            for (int i = 0; i < child1.Order.Length; i++)
+            {
+                if (i >= cut1 && i <= cut2)
+                {
+                    child1.Order[i] = parent2[i];
+                    child2.Order[i] = parent1[i];
+                }
+            }
+
+            for (int i = 0; i < child1.Order.Length; i++)
+            {
+                if (i < cut1 || i > cut2)
+                {
+                    if (!child1.Order.ContainsInt(parent1[i]))
+                    {
+                        child1.Order[i] = parent1[i];
+                    }
+                    else
+                    {
+                        int currentVal = Array.IndexOf(parent2, parent1[i]);
+                        while (child1.Order.ContainsInt(parent1[currentVal]))
+                        {
+                            currentVal = Array.IndexOf(parent2, parent1[currentVal]);
+                        }
+                        child1.Order[i] = parent1[currentVal];
+                    }
+                    if (!child2.Order.ContainsInt(parent2[i]))
+                    {
+                        child2.Order[i] = parent2[i];
+                    }
+                    else
+                    {
+                        int currentVal = Array.IndexOf(parent1, parent2[i]);
+                        while (child2.Order.ContainsInt(parent2[currentVal]))
+                        {
+                            currentVal = Array.IndexOf(parent1, parent2[currentVal]);
+                        }
+                        child2.Order[i] = parent2[currentVal];
+                    }
+                }
+            }
+
+            return new Individual[] { child1, child2 };
+        }
     }
     public class CX
     {
@@ -252,16 +250,16 @@ namespace KarolinaWasilewska
         }
         public int PopulationIndex { get; set; }
 
-        public static int[] SwapRandomPoints(int[] tab)
+        public int[] SwapRandomPoints()
         {
-            int p1 = ENVIRONMENT.random.Next(tab.Length);
-            int p2 = ENVIRONMENT.random.Next(tab.Length);
+            int p1 = ENVIRONMENT.random.Next(Order.Length);
+            int p2 = ENVIRONMENT.random.Next(Order.Length);
 
-            int temp = tab[p1];
-            tab[p1] = tab[p2];
-            tab[p2] = temp;
+            int temp = Order[p1];
+            Order[p1] = Order[p2];
+            Order[p2] = temp;
 
-            return tab;
+            return Order;
         }
 
         public double TotalDistance { get; set; }
@@ -307,7 +305,7 @@ namespace KarolinaWasilewska
                 //posortuj go (tyle swapów ile miast)
                 for (int j = 0; j < ENVIRONMENT.IndividualSize; j++)
                 {
-                    population[i].Order = Individual.SwapRandomPoints(population[i].Order);
+                    population[i].Order = population[i].SwapRandomPoints();
                 }
                 population[i].RecalculateTotalDistance();
             }
@@ -437,7 +435,7 @@ namespace KarolinaWasilewska
                 ENVIRONMENT.PopulationCount = criteria.GenerationCount ?? 0;
 
                 Individual bestOne = new Individual(problemKlienta);
-                bestOne.RecalculateTotalDistance();
+               
 
                 PMX pmx = new PMX(problemKlienta);
                 CX cx = new CX(problemKlienta);
@@ -459,19 +457,24 @@ namespace KarolinaWasilewska
                     {
 
                         //wybierz rodziców ruletką
-                        Individual mum = RouletteSelection(currentPopulation.Individuals);
-                        Individual dad = RouletteSelection(currentPopulation.Individuals);
-                        //    Individual mum = Select(currentPopulation.Individuals, 2);
-                        // Individual dad = Select(currentPopulation.Individuals, 2);
+                        //Individual mum = RouletteSelection(currentPopulation.Individuals);
+                        //Individual dad = RouletteSelection(currentPopulation.Individuals);
+                            Individual mum = Select(currentPopulation.Individuals, 2);
+                         Individual dad = Select(currentPopulation.Individuals, 2);
 
 
 
 
-                        if (gen > 50 && gen - bestOne.PopulationIndex > 50)
+                        if (gen > 200 && gen - bestOne.PopulationIndex > 200)
                         {
-                            mum = bestOne;
-                            criteria.MutationCount = +1000;
-                            //   Console.WriteLine("mix");
+                            //mum = bestOne;
+                            //criteria.MutationCount = +1000;
+                            for (int j = 0; j < 50; j++)
+                            {
+                                mum.Order= mum.SwapRandomPoints();
+                                dad.Order=dad.SwapRandomPoints();
+                            }
+                            Console.WriteLine("mix");
                         }
 
                         Individual[] children = new Individual[2];
@@ -491,7 +494,6 @@ namespace KarolinaWasilewska
 
 
                         //zmutuj
-                        //foreach (var item in children)
                         for (int i = 0; i < children.Length; i++)
                         {
 
@@ -499,7 +501,7 @@ namespace KarolinaWasilewska
                             {
                                 for (int j = 0; j < criteria.MutationCount; j++)
                                 {
-                                    Individual.SwapRandomPoints(children[i].Order);
+                                    children[i].Order=children[i].SwapRandomPoints();
                                 }
                             }
                             children[i].RecalculateTotalDistance();
@@ -516,7 +518,7 @@ namespace KarolinaWasilewska
 
                         }
                     }
-                    currentPopulation = newPopulation;
+                    currentPopulation.Individuals =(Individual[])newPopulation.Individuals.Clone();
                 }
                 Console.WriteLine("Finish!");
                 Console.ReadKey();
@@ -548,7 +550,7 @@ namespace KarolinaWasilewska
             {
                 DataReader.ReadData();
             }
-            public int Rozmiar(int numer_zbioru = 0) { return 980; } // jeśli podany inny niż 0 to zmieniamy na ów zbiór
+            public int Rozmiar(int numer_zbioru = 0) { return 30; } // jeśli podany inny niż 0 to zmieniamy na ów zbiór
 
             public double Ocena(int[] sciezka) // indeksy
             {
@@ -595,7 +597,7 @@ namespace KarolinaWasilewska
                 static public void ReadData()
                 {
 
-                    City[] cities = new City[980];
+                    City[] cities = new City[30];
 
                     string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"../../data.txt");
                     int index = 0;
