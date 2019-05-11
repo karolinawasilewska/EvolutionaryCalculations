@@ -340,58 +340,58 @@ namespace KarolinaWasilewska
         class Program
         {
             protected static srodowisko.ProblemKlienta problemKlienta = new srodowisko.ProblemKlienta();
-            public static Individual RouletteSelection(Individual[] population)
-            {
-                double sum = 0,
-                      minValue = 0,
-                      randomValue = 0;
-                for (int i = 0; i < population.Length; i++)
-                {
-                    sum += population[i].TotalDistance;
-                    if (minValue > population[i].TotalDistance)
-                    {
-                        minValue = population[i].TotalDistance;
-                    }
-                }
-
-                sum += -minValue * population.Length;
-                randomValue = sum * ENVIRONMENT.random.NextDouble() + minValue * population.Length;
-                sum = 0;
-                for (int i = 0; i < population.Length; i++)
-                {
-                    sum += population[i].TotalDistance;
-                    if (minValue > population[i].TotalDistance)
-                    {
-                        minValue = population[i].TotalDistance;
-                    }
-                }
-
-                return population[(int)(ENVIRONMENT.random.NextDouble() * population.Length)];
-            }
-            //public static Individual RouletteSelection(Individual[] individuals)
+            //public static Individual RouletteSelection(Individual[] population)
             //{
-
-            //    double weightSum = 0, weightCheck = 0;
-            //    for (int i = 0; i < individuals.Length; i++)
+            //    double sum = 0,
+            //          minValue = 0,
+            //          randomValue = 0;
+            //    for (int i = 0; i < population.Length; i++)
             //    {
-            //        weightSum += individuals[i].TotalDistance;
-            //    }
-
-            //    Individual chosen = individuals[0];
-            //    double chosenOne = ENVIRONMENT.random.Next(0, (int)weightSum);
-
-            //    for (int i = 0; i < individuals.Length; i++)
-            //    {
-            //        weightCheck += individuals[i].TotalDistance;
-
-            //        if (weightCheck > chosenOne)
+            //        sum += population[i].TotalDistance;
+            //        if (minValue > population[i].TotalDistance)
             //        {
-            //            chosen = individuals[i];
-            //            break;
+            //            minValue = population[i].TotalDistance;
             //        }
             //    }
-            //    return chosen;
+
+            //    sum += -minValue * population.Length;
+            //    randomValue = sum * ENVIRONMENT.random.NextDouble() + minValue * population.Length;
+            //    sum = 0;
+            //    for (int i = 0; i < population.Length; i++)
+            //    {
+            //        sum += population[i].TotalDistance;
+            //        if (minValue > population[i].TotalDistance)
+            //        {
+            //            minValue = population[i].TotalDistance;
+            //        }
+            //    }
+
+            //    return population[(int)(ENVIRONMENT.random.NextDouble() * population.Length)];
             //}
+            public static Individual RouletteSelection(Individual[] individuals)
+            {
+
+                double weightSum = 0, weightCheck = 0;
+                for (int i = 0; i < individuals.Length; i++)
+                {
+                    weightSum += individuals[i].TotalDistance;
+                }
+
+                Individual chosen = individuals[0];
+                double chosenOne = ENVIRONMENT.random.Next(0, (int)weightSum);
+
+                for (int i = 0; i < individuals.Length; i++)
+                {
+                    weightCheck += individuals[i].TotalDistance;
+
+                    if (weightCheck > chosenOne)
+                    {
+                        chosen = individuals[i];
+                        break;
+                    }
+                }
+                return chosen;
+            }
 
             public static Individual Select(Individual[] individuals, int size)
             {
@@ -457,10 +457,10 @@ namespace KarolinaWasilewska
                     {
 
                         //wybierz rodziców ruletką
-                        //Individual mum = RouletteSelection(currentPopulation.Individuals);
-                        //Individual dad = RouletteSelection(currentPopulation.Individuals);
-                            Individual mum = Select(currentPopulation.Individuals, 2);
-                         Individual dad = Select(currentPopulation.Individuals, 2);
+                        Individual mum = RouletteSelection(currentPopulation.Individuals);
+                        Individual dad = RouletteSelection(currentPopulation.Individuals);
+                       //     Individual mum = Select(currentPopulation.Individuals, 2);
+                      //   Individual dad = Select(currentPopulation.Individuals, 2);
 
 
 
