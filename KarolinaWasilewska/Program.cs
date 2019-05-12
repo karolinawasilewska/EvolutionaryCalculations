@@ -245,7 +245,7 @@ namespace KarolinaWasilewska
                 }
 
                 int swapCount = ENVIRONMENT.IndividualSize > 1000 ? ENVIRONMENT.IndividualSize / 5 : ENVIRONMENT.IndividualSize;
-                for (int j = 0; j < swapCount ; j++)
+                for (int j = 0; j < swapCount; j++)
                 {
                     population[i].Order = population[i].SwapRandomPoints();
                 }
@@ -284,13 +284,14 @@ namespace KarolinaWasilewska
         public short MutationCount { get; set; }
         public short StagnationMoment { get; set; }
         public short StagnationMutationCount { get; set; }
+        public int IfShuffle { get; set; }
 
         public override string ToString()
         {
             return string.Format("Crossover: {0}, Stop criterium: {1}, Population size: {2}, " +
                 "Generation count: {3}, Time: {4}, Finish time: {5}, Dataset number: {6}, " +
                 "Mutation possibility: {7}, Mutation count: {8}, Stagnation moment: {9}, " +
-                "Stagnation mutation count: {10}", Crossover, StopCriterion, PopulationSize, GenerationCount, Time, FinishTime, 
+                "Stagnation mutation count: {10}", Crossover, StopCriterion, PopulationSize, GenerationCount, Time, FinishTime,
                DatasetNumber, MutationPossibility, MutationCount, StagnationMoment, StagnationMutationCount);
         }
         class Program
@@ -298,54 +299,26 @@ namespace KarolinaWasilewska
             protected static srodowisko.ProblemKlienta problemKlienta = new srodowisko.ProblemKlienta();
             public static Individual RouletteSelection(Population individuals)
             {
-               
-                  //  var sorted = individuals.genotypes.OrderBySurvivalScore();
-                    var theLastIndividual = individuals.Worst;
-                    double maxSumRange = 0;
-                    for (int j = 0; j < individuals.Individuals.Length; j++)
-                    {
-                        maxSumRange += theLastIndividual.TotalDistance / individuals.Individuals[j].TotalDistance;
-                    }
-                    Individual parent = null;
-                    var i = 0;
-                    var sum = theLastIndividual.TotalDistance / individuals.Individuals[i].TotalDistance;
-                    var randomScoreValue = ENVIRONMENT.random.NextDouble() * maxSumRange;
-                    while (parent == null)
-                    {
-                        if (randomScoreValue <= sum)
-                        {
-                            parent = individuals.Individuals[i];
-                            break;
-                        }
-                        i++;
-                        sum += theLastIndividual.TotalDistance / individuals.Individuals[i].TotalDistance;
-                    }
-                    if (parent == null)
-                    {
-                        parent = individuals.Individuals[individuals.Individuals.Length - 1];
-                    }
-                    return parent;
-               
-                //double sum = 0;
-                //for (int k = 0; k < individuals.Length; k++)
-                //{
-                //    sum += 1 / individuals[k].TotalDistance;
-                //}
-                //Individual selected = new Individual(problemKlienta);
+                double sum = 0;
+                for (int k = 0; k < individuals.Individuals.Length; k++)
+                {
+                    sum += 1 / individuals.Individuals[k].TotalDistance;
+                }
+                Individual selected = new Individual(problemKlienta);
 
-                //double los = ENVIRONMENT.random.NextDouble() * sum;
+                double los = ENVIRONMENT.random.NextDouble() * sum;
 
-                //Individual ind = individuals[0];
-                //double currentSum = 0;
-                //for (int i = 0; i < individuals.Length; i++)
-                //{
-                //    currentSum += 1 / individuals[i].TotalDistance;
-                //    if (currentSum >= los)
-                //    {
-                //        return individuals[i];
-                //    }
-                //}
-                //return selected;
+                Individual ind = individuals.Individuals[0];
+                double currentSum = 0;
+                for (int i = 0; i < individuals.Individuals.Length; i++)
+                {
+                    currentSum += 1 / individuals.Individuals[i].TotalDistance;
+                    if (currentSum >= los)
+                    {
+                        return individuals.Individuals[i];
+                    }
+                }
+                return selected;
             }
 
             public static Individual Select(Individual[] individuals, int size)
@@ -380,18 +353,19 @@ namespace KarolinaWasilewska
                     Crossover = args[1],
                     StopCriterion = (StopCriterias)int.Parse(args[2]),
                     PopulationSize = int.Parse(args[3]),
-                    GenerationCount = int.Parse(args[4]),
+                    GenerationCount = int.Parse(args[4]) == 0 ? int.MaxValue : int.Parse(args[4]),
                     Time = args[5] == "0" ? TimeSpan.Zero : TimeSpan.FromMinutes(double.Parse(args[5])),
                     MutationPossibility = double.Parse(args[6]),
                     MutationCount = short.Parse(args[7]),
                     StagnationMoment = short.Parse(args[8]),
                     StagnationMutationCount = short.Parse(args[9]),
-                    DatasetNumber = short.Parse(args[10])
+                    DatasetNumber = short.Parse(args[10]),
+                    IfShuffle = int.Parse(args[11])
                 };
                 ENVIRONMENT.IndividualSize = problemKlienta.Rozmiar(criteria.DatasetNumber);
                 ENVIRONMENT.PopulationSize = criteria.PopulationSize;
                 ENVIRONMENT.PopulationCount = criteria.StopCriterion == StopCriterias.GenerationCount ? criteria.GenerationCount : int.MaxValue;
-
+                bool shuffeled = false;
                 Console.WriteLine("Started at {0}, Individual size: {1}, {2} ", DateTime.Now, ENVIRONMENT.IndividualSize, criteria.ToString());
 
                 Individual bestOne = new Individual(problemKlienta);
@@ -412,7 +386,7 @@ namespace KarolinaWasilewska
                 {
                     if (DateTime.Now < criteria.FinishTime)
                     {
-                        if (criteria.Time==TimeSpan.Zero || ((DateTime.Now - startTime).TotalMinutes < criteria.Time.TotalMinutes))
+                        if (criteria.Time == TimeSpan.Zero || ((DateTime.Now - startTime).TotalMinutes < criteria.Time.TotalMinutes))
                         {
                             Population newPopulation = new Population(problemKlienta)
                             {
@@ -427,15 +401,24 @@ namespace KarolinaWasilewska
                                         //wybierz rodziców ruletką
                                         Individual mum = RouletteSelection(currentPopulation);
                                         Individual dad = RouletteSelection(currentPopulation);
+                                        if (mum.TotalDistance == dad.TotalDistance)
+                                        {
+                                            DateTime now = DateTime.Now;
+                                            if ((DateTime.Now - now).TotalMinutes < 5)
+                                            {
+                                                while (mum.TotalDistance == dad.TotalDistance)
+                                                { dad = RouletteSelection(currentPopulation); }
+                                            }
+                                            else
+                                            {
+                                                break;
+                                            }
+                                        }
 
                                         if (gen > criteria.StagnationMoment && gen - bestOne.PopulationIndex > criteria.StagnationMoment)
                                         {
                                             mum = bestOne;
-                                            for (int j = 0; j < criteria.StagnationMutationCount; j++)
-                                            {
-                                                dad.Order = dad.SwapRandomPoints();
-                                            }
-                                            Console.WriteLine("mix");
+
                                         }
 
                                         Individual[] children = new Individual[2];
@@ -483,7 +466,7 @@ namespace KarolinaWasilewska
                                                 if (newPopulation.Best.TotalDistance > newPopulation.Individuals[ind].TotalDistance)
                                                     newPopulation.Best = newPopulation.Individuals[ind];
                                                 if (newPopulation.Worst.TotalDistance < newPopulation.Individuals[ind].TotalDistance)
-                                                    newPopulation.Worst = newPopulation.Individuals[ind];                                                
+                                                    newPopulation.Worst = newPopulation.Individuals[ind];
                                             }
                                             else if (!(ind == 0 && i == 0))
                                             {
@@ -494,14 +477,14 @@ namespace KarolinaWasilewska
                                                     newPopulation.Worst = newPopulation.Individuals[ind + 1];
                                             }
 
-                                           
+
 
                                             if (bestOne.TotalDistance > children[i].TotalDistance)
                                             {
                                                 bestOne = children[i];
                                                 bestOne.PopulationIndex = gen;
-
-                                                Console.WriteLine("BestOne {0} pop {1}", (int)bestOne.TotalDistance, gen);
+                                                shuffeled = false;
+                                                Console.WriteLine("BestOne {0} pop {1} {2}", (int)bestOne.TotalDistance, gen, DateTime.Now);
                                             }
                                         }
                                     }
@@ -511,7 +494,7 @@ namespace KarolinaWasilewska
                             Console.WriteLine(newPopulation.Best.TotalDistance);
                             //if (newPopulation.Worst.TotalDistance > currentPopulation.Best.TotalDistance)
                             //{
-                                int index = Array.IndexOf(newPopulation.Individuals, newPopulation.Worst);
+                            int index = Array.IndexOf(newPopulation.Individuals, newPopulation.Worst);
                             newPopulation.Individuals[index] = bestOne;
                             //    newPopulation.Individuals[index] = currentPopulation.Best;
                             //}
@@ -521,9 +504,33 @@ namespace KarolinaWasilewska
                         else { break; }
                     }
                     else { break; }
+
+                    if (gen > criteria.StagnationMoment && gen - bestOne.PopulationIndex > 500)
+                    {
+                        if (criteria.IfShuffle == 1 && !shuffeled)
+                        {
+                            for (int i = 0; i < ENVIRONMENT.PopulationSize / 50; i++)
+                            {
+                                Individual random = currentPopulation.Individuals[ENVIRONMENT.random.Next(currentPopulation.Individuals.Length)];
+                                int[] newOne = new int[currentPopulation.Individuals.Length];
+                                int randomIndex = ENVIRONMENT.random.Next(currentPopulation.Individuals.Length);
+                                for (int j = 0; j < 100; j++)
+                                {
+                                    newOne = currentPopulation.Individuals[randomIndex].SwapRandomPoints();
+
+                                }
+                                currentPopulation.Individuals[randomIndex].Order = newOne;
+                            }
+                            shuffeled = true;
+                        }
+                        else { break; }
+                    }
+
+
+
                 }
                 Console.WriteLine("Finish! Time: {0}, BestVal: {1}, BVPop: {2}", DateTime.Now, bestOne.TotalDistance, bestOne.PopulationIndex);
-                Console.ReadKey();
+                // Console.ReadKey();
             }
         }
     }
